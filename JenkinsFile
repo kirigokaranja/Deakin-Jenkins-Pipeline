@@ -3,9 +3,7 @@ pipeline {
     agent any
 
     environment {
-        DIRECTORY_PATH = '/var/www/html/deakin-uni/ui'
-        TESTING_ENVIRONMENT = 'STAGING'
-        PRODUCTION_ENVIRONMENT = 'SHARON'
+        EMAIL_RECIPIENT = 's223972975@deakin.edu.au'
     }
 
     stages {
