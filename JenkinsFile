@@ -9,15 +9,7 @@ pipeline {
     stages {
         stage('Build'){
             steps {
-                echo "Fetch the source code from the directory path: $DIRECTORY_PATH"
-                echo "Compile the code and generate any necessary artifacts"
-            }
-            post {
-                success {
-                    mail to: "s223972975@deakin.edu.au",
-                    subject: "Build Status email",
-                    body: "Build was successful"
-                }
+                echo "Build the code using a build automation tool to compile and package the code. The automation tool used is npm or webhook"
             }
         }
 
@@ -29,6 +21,9 @@ pipeline {
 
              post {
                 always {
+                    script {
+                        def logs = readFile 'build.log'
+                    }
 
                     emailext(
                         to: $EMAIL_RECIPIENT,
@@ -41,7 +36,10 @@ pipeline {
                         - Status: $currentBuild.currentResult
 
                         Find attached logs for more details.
-                        """
+                        """,
+                        attachmentsPattern: 'build.log',
+                        attachLog: true,
+                        mimeType: 'text/plain'
 
                     )
                     
@@ -49,27 +47,49 @@ pipeline {
             }
         }
 
-        stage('Code Quality Check'){
+        stage('Code Analysis'){
             steps {
-                echo "Check the quality of the code"
+                echo "Analyze the code using SonarQube to ensure it meets industry standards."
             }
         }
 
-        stage('Deploy'){
+        stage('Security Scan'){
             steps {
-                echo "Deploy the application to testing environment: $TESTING_ENVIRONMENT"
+                echo "Perform a security scan on the code using OWASP to identify any vulnerabilities"
+            }
+
+             post {
+                always {
+                    mail to: $EMAIL_RECIPIENT,
+                    subject: "Security Scan Build Status email",
+                    body: "Security scan stage is ${currentBuild.currentResult}"
+                }
             }
         }
 
-        stage('Approval'){
+        stage('Deploy to Staging'){
             steps {
-                sleep 10
+                echo "Deploy to application to staging server using AWS CloudFormation or Azure Storage"
+            }
+        }
+
+        stage('Integration Tests on Staging'){
+            steps {
+                echo "Using Selenium to run integration tests on the staging environment to ensure the application functions as expected in a production-like environment"
+            }
+
+             post {
+                always {
+                    mail to: $EMAIL_RECIPIENT,
+                    subject: "Integration Tests on Staging Build Status email",
+                    body: "Build was successful"
+                }
             }
         }
 
         stage('Deploy to Production'){
             steps {
-                echo "Deploy to production environment: $PRODUCTION_ENVIRONMENT"
+                echo "Deploy to application to production server using AWS CloudFormation"
             }
         }
     }
