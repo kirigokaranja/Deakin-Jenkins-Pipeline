@@ -23,10 +23,37 @@ pipeline {
             }
         }
 
-        stage('Test'){
+        stage('Unit and Integration Tests'){
             steps {
-                echo "Unit tests"
-                echo "Integration tests"
+                echo "Unit tests are performed and usually cover a single function and cover a small portion of the overall code. Automation tools used for this include Jest"
+                echo "Integration tests involve testing the interaction between different components. Automation tools used for this include Cypress."
+            }
+
+             post {
+                always {
+                    script {
+                        def logs = readFile 'build.log'
+                    }
+
+                    emailext(
+                        to: $EMAIL_RECIPIENT,
+                        subject: "Unit and Integration Tests Build Status email",
+                        body: """
+
+                        The Jenkins unit and integration tests stage has finished running
+
+                        - Build Number: $BUILD_NUMBER
+                        - Status: $currentBuild.currentResult
+
+                        Find attached logs for more details.
+                        """,
+                        attachmentsPattern: 'build.log',
+                        attachLog: true,
+                        mimeType: 'text/plain'
+
+                    )
+                    
+                }
             }
         }
 
