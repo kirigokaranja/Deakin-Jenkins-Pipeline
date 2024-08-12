@@ -31,9 +31,6 @@ pipeline {
 
              post {
                 always {
-                    script {
-                        def logs = readFile 'build.log'
-                    }
 
                     emailext(
                         to: $EMAIL_RECIPIENT,
@@ -46,10 +43,7 @@ pipeline {
                         - Status: $currentBuild.currentResult
 
                         Find attached logs for more details.
-                        """,
-                        attachmentsPattern: 'build.log',
-                        attachLog: true,
-                        mimeType: 'text/plain'
+                        """
 
                     )
                     
